@@ -111,8 +111,9 @@ class BasketList {
         btnList.forEach(btn => {
             btn.addEventListener('click', () => {
                 let id_product = btn.getAttribute('value')
-                makeGETRequest(`${API_URL}${addBasketUrl}?id_product=${id_product}`)
-                console.log(`${API_URL}${addBasketUrl}?ip_product=${id_product}`)
+                makeGETRequest(`${API_URL}${addBasketUrl}?id_product=${id_product}`).then((result) => {
+                    console.log(result)
+                })
             })
         })
     }
@@ -121,8 +122,10 @@ class BasketList {
         btnList.forEach(btn => {
             btn.addEventListener('click', () => {
                 let id_product = btn.getAttribute('value')
-                makeGETRequest(`${API_URL}${dellBasketUrl}?id_product=${id_product}`)
-                console.log(`${API_URL}${dellBasketUrl}?ip_product=${id_product}`)
+                makeGETRequest(`${API_URL}${dellBasketUrl}?id_product=${id_product}`).then((result) => {
+                    console.log(result)
+                })
+
             })
         })
     }
