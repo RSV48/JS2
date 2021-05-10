@@ -3,7 +3,7 @@ const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-sto
 const getListUrl = '/catalogData.json';
 const getBasketUrl = '/getBasket.json';
 const addBasketUrl = '/addToBasket.json';
-const delBasketUrl = '/deleteFromBasket.json';
+const dellBasketUrl = '/deleteFromBasket.json';
 
 
 
@@ -41,12 +41,12 @@ class GodsItem {
     }
     render() {
         const btnName = this.addBasket ? 'Добавить' : 'Удалить';
-        const btnUrl = this.addBasket ? `${API_URL}${addBasketUrl}` : `${API_URL}${delBasketUrl}`
+        const btnID = this.addBasket ? "btnAdd" : "btnDell"
         return `<div class="goods-item">
         <h3>${this.title}</h3>
         <p>${this.price} ₽</p>
         <p>${this.quantity} шт.</p>
-        <a href='${btnUrl}' class="button button_text" type="button" value=${this.id}>${btnName}</a>
+        <a href="#" id=${btnID} class="button button_text" type="button" value="${this.id}">${btnName}</a>
         </div>`;
     }
 }
@@ -106,6 +106,27 @@ class BasketList {
             }
         })
     }
+    basketAdd() {
+        let btnList = document.querySelectorAll('a#btnAdd')
+        btnList.forEach(btn => {
+            btn.addEventListener('click', () => {
+                let id_product = btn.getAttribute('value')
+                makeGETRequest(`${API_URL}${addBasketUrl}?id_product=${id_product}`)
+                console.log(`${API_URL}${addBasketUrl}?ip_product=${id_product}`)
+            })
+        })
+    }
+    basketDell() {
+        let btnList = document.querySelectorAll('a#btnDell')
+        btnList.forEach(btn => {
+            btn.addEventListener('click', () => {
+                let id_product = btn.getAttribute('value')
+                makeGETRequest(`${API_URL}${dellBasketUrl}?id_product=${id_product}`)
+                console.log(`${API_URL}${dellBasketUrl}?ip_product=${id_product}`)
+            })
+        })
+    }
+
 
     render() {
         let listHtml = '';
@@ -118,7 +139,8 @@ class BasketList {
         elementList.innerHTML = listHtml
         this.totalCost();
         this.basketWiev();
-        // this.basketAdd();
+        this.basketAdd();
+        this.basketDell();
     }
 }
 
