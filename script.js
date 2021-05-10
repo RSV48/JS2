@@ -1,22 +1,52 @@
-const goods = [
-    { title: 'Shirt', price: 150 },
-    { title: 'Socks', price: 50 },
-    { title: 'Jacket', price: 350 },
-    { title: 'Shoes', price: 250 },
-];
+
+const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
+const getListUrl = '/catalogData.json';
+const getBasketUrl = '/getBasket.json';
+const addBasketUrl = '/addToBasket.json';
+const delBasketUrl = '/deleteFromBasket.json';
+
+
+
+async function makeGETRequest(url) {
+    let promise = new Promise((resolve, reject) => {
+        let xhr;
+        if (window.XMLHttpRequest) {
+            xhr = new XMLHttpRequest();
+        } else if (window.ActiveXObject) {
+            xhr = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        xhr.onreadystatechange = function () {
+
+            if (xhr.readyState === 4) {
+                resolve(xhr.responseText);
+            }
+        }
+        xhr.open('GET', url, true);
+        xhr.send();
+    });
+    let result = await promise;
+    return result
+};
+
+
 
 class GodsItem {
-    constructor(title, price, quantity) {
+    constructor(id, title, price, quantity = 1, addBasket = true) {
+        this.id = id
         this.title = title;
         this.price = price;
         this.quantity = quantity;
+        this.addBasket = addBasket;
     }
     render() {
+        const btnName = this.addBasket ? 'Добавить' : 'Удалить';
+        const btnUrl = this.addBasket ? `${API_URL}${addBasketUrl}` : `${API_URL}${delBasketUrl}`
         return `<div class="goods-item">
         <h3>${this.title}</h3>
         <p>${this.price} ₽</p>
         <p>${this.quantity} шт.</p>
-        <a href='#' class="button button_tex" type="button">Удалить</a>
+        <a href='${btnUrl}' class="button button_text" type="button" value=${this.id}>${btnName}</a>
         </div>`;
     }
 }
@@ -25,51 +55,82 @@ class GoodsList {
         this.goods = [];
         this.total = {};
     }
-    fetchGoods() {
-        this.goods = [
-            { title: 'Shirt', price: 150, quantity: 2 },
-            { title: 'Socks', price: 50, quantity: 4 },
-            { title: 'Jacket', price: 350, quantity: 1 },
-            { title: 'Shoes', price: 250, quantity: 3 },
-        ];
-    }
-    totalCost() {
-        this.total = { quantity: 0, cost: 0 };
-        this.goods.forEach(product => {
-            this.total.quantity += product.quantity;
-            this.total.cost += product.price * product.quantity;
+    async fetchGoods() {
+        return new Promise((resolve) => {
+            resolve(makeGETRequest(`${API_URL}${getListUrl}`))
         })
-        const html = `<button class="basket" type="button">Корзина ${this.total.cost} ₽, ${this.total.quantity} шт. </button>`
+    }
+
+    render(goods) {
+        this.goods = JSON.parse(goods)
+        let listHtml = '';
+        this.goods.forEach(product => {
+            const productItem = new GodsItem(product.id_product, product.product_name, product.price, product.quantity);
+            listHtml += productItem.render();
+        });
+        const elementList = document.querySelector('.goods-list');
+        elementList.innerHTML = listHtml;
+        // this.basketAdd();
+    }
+};
+
+
+class BasketList {
+    constructor() {
+        this.basket_list = []
+        this.total = { quantity: 0, cost: 0 };
+    }
+    async fetchGoods() {
+        let promise = await makeGETRequest(`${API_URL}${getBasketUrl}`)
+        this.basket_list = await JSON.parse(promise)
+        console.log(this.basket_list)
+        this.render();
+    }
+
+    totalCost() {
+        const html = `<button class="basket" type="button">Корзина ${this.basket_list.amount} ₽, ${this.basket_list.countGoods} наименования. </button>`
         const elementList = document.querySelector('.top_info');
         elementList.innerHTML = html;
 
     }
+    basketWiev() {
+        let basket_list = document.querySelector('.basket_list')
+        let basket_button = document.querySelector('.basket')
+        basket_list.style.display = 'none'
+        basket_button.addEventListener('click', () => {
+            if (basket_list.style.display == 'none') {
+                basket_list.style.display = 'flex'
+            }
+            else {
+                basket_list.style.display = 'none'
+            }
+        })
+    }
+
     render() {
         let listHtml = '';
-        this.goods.forEach(product => {
-            const productItem = new GodsItem(product.title, product.price, product.quantity);
+        let addBasket = false
+        this.basket_list.contents.forEach(product => {
+            const productItem = new GodsItem(product.id, product.product_name, product.price, product.quantity, addBasket);
             listHtml += productItem.render();
         });
-        const elementList = document.querySelector('.goods-list');
+        const elementList = document.querySelector('.basket_style');
         elementList.innerHTML = listHtml
-
+        this.totalCost();
+        this.basketWiev();
+        // this.basketAdd();
     }
-};
-
-class addProduct {
-
-};
-
-class deleteProduct {
-
-};
+}
 
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const list = new GoodsList();
-    list.fetchGoods();
-    list.render();
-    list.totalCost();
+    const basketlist = new BasketList();
+    list.fetchGoods().then((goods) => {
+        list.render(goods)
+    });
+    basketlist.fetchGoods();
+
 });
 
 
