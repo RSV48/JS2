@@ -53,18 +53,27 @@ class GodsItem {
 class GoodsList {
     constructor() {
         this.goods = [];
-        this.total = {};
+        this.filteredGoods = [];
+        this.query = '';
     }
     async fetchGoods() {
-        return new Promise((resolve) => {
-            resolve(makeGETRequest(`${API_URL}${getListUrl}`))
-        })
+        let promise = await makeGETRequest(`${API_URL}${getListUrl}`)
+        this.goods = await JSON.parse(promise)
+        this.render()
     }
 
-    render(goods) {
-        this.goods = JSON.parse(goods)
+    setGoods() {
+        this.filterGoods(this.query)
+    }
+    filterGoods(value) {
+        this.query = value;
+        this.filteredGoods = this.goods.filter((product) => (new RegExp(value, 'i')).test(product.product_name));
+
+    }
+    render() {
+        this.setGoods();
         let listHtml = '';
-        this.goods.forEach(product => {
+        this.filteredGoods.forEach(product => {
             const productItem = new GodsItem(product.id_product, product.product_name, product.price, product.quantity);
             listHtml += productItem.render();
         });
@@ -83,13 +92,12 @@ class BasketList {
     async fetchGoods() {
         let promise = await makeGETRequest(`${API_URL}${getBasketUrl}`)
         this.basket_list = await JSON.parse(promise)
-        console.log(this.basket_list)
         this.render();
     }
 
     totalCost() {
         const html = `<button class="basket" type="button">Корзина ${this.basket_list.amount} ₽, ${this.basket_list.countGoods} наименования. </button>`
-        const elementList = document.querySelector('.top_info');
+        const elementList = document.querySelector('.basket_button');
         elementList.innerHTML = html;
 
     }
@@ -151,10 +159,15 @@ class BasketList {
 document.addEventListener('DOMContentLoaded', async () => {
     const list = new GoodsList();
     const basketlist = new BasketList();
-    list.fetchGoods().then((goods) => {
-        list.render(goods)
-    });
+    list.fetchGoods();
     basketlist.fetchGoods();
+
+    const serachInput = document.querySelector('.goods-search');
+    serachInput.addEventListener('change', (e) => {
+        list.filterGoods(e.target.value)
+        list.render()
+    });
+
 
 });
 
