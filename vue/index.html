@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eShop</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="script_vue.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <header class="top_info">
+            <input type="text" class="goods-search" placeholder="Найти товар ..." v-model="searchLine"
+                @change="filterGoods()" />
+            <div class="basket_button">
+                <button class="basket" type="button" @click="basketWiev()">Корзина</button>
+            </div>
+        </header>
+        <div class="basket_list">
+            <div class="basket_style">
+
+            </div>
+        </div>
+        <main>
+            <div class="goods-list">
+                <template v-if="filteredGoods.length!=0">
+                    <div class="goods-item" v-for="prod in filteredGoods">
+                        <h3>{{ prod.product_name }}</h3>
+                        <p>{{ prod.price }}</p>
+                    </div>
+                </template>
+                <h3 v-else> Ничего не найдено </h3>
+            </div>
+        </main>
+    </div>
+
+
+
+</body>
+
+</html>
