@@ -72,6 +72,7 @@ class GoodsList {
     }
     render() {
         this.setGoods();
+        console.log(this.goods);
         let listHtml = '';
         this.filteredGoods.forEach(product => {
             const productItem = new GodsItem(product.id_product, product.product_name, product.price, product.quantity);
