@@ -8,7 +8,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 24%;
+    width: 250px;
     height: 250px;
     margin: 15px;
     padding: 44px 32px 44px;
@@ -59,4 +59,21 @@ body {
     border: 1px solid rgb(80, 200, 255);
     flex-grow: 1;
     height: 100%;
+}
+
+.basket_list {
+    position: absolute;
+    top: 80px;
+    right: 0;
+    background-color: rgb(143, 173, 238);
+    width: 70%;
+    height: 90%;
+    /* display: none;
+    justify-content: space-around; */
+}
+
+.basket_style{
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
 }
